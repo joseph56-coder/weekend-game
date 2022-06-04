@@ -29,9 +29,9 @@ func main() {
 	publicFs := http.FileServer(http.Dir(public))
 	http.Handle("/public/", http.StripPrefix("/public/", publicFs))
 
-	pages := filepath.Join(root, "public", "html")
-	pagesFs := http.FileServer(http.Dir(pages))
-	http.Handle("/", pagesFs)
+	// pages := filepath.Join(root, "public", "html")
+	// pagesFs := http.FileServer(http.Dir(pages))
+	// http.Handle("/", pagesFs)
 
 	server := socketio.NewServer(nil)
 	server.OnConnect("/", func(c socketio.Conn) error {
