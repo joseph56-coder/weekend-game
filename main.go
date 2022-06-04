@@ -9,6 +9,8 @@ import (
 
 	socketio "github.com/googollee/go-socket.io"
 	"github.com/joho/godotenv"
+	"github.com/joseph56-coder/weekend-game/api"
+	"github.com/joseph56-coder/weekend-game/api/handlers"
 )
 
 func main() {
@@ -31,20 +33,23 @@ func main() {
 	pagesFs := http.FileServer(http.Dir(pages))
 	http.Handle("/", pagesFs)
 
-	s := socketio.NewServer(nil)
-	s.OnConnect("/", func(c socketio.Conn) error {
+	server := socketio.NewServer(nil)
+	server.OnConnect("/", func(c socketio.Conn) error {
 		log.Println("New Connection:", c.ID())
 		return nil
 	})
 
-	s.OnDisconnect("/", func(c socketio.Conn, reason string) {
+	server.OnDisconnect("/", func(c socketio.Conn, reason string) {
 		log.Println("Disconnected", c.ID(), reason)
 	})
 
-	go s.Serve()
-	defer s.Close()
+	game := &api.Game{}
+	handlers.RegisterHandlers(server, game)
 
-	http.Handle("/game", s)
+	go server.Serve()
+	defer server.Close()
+
+	http.Handle("/game", server)
 
 	err = http.ListenAndServe(os.Getenv("ADDR"), nil)
 	if err != http.ErrServerClosed {

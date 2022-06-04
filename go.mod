@@ -1,4 +1,4 @@
-module github.com/Guilherme-De-Marchi/joguinho
+module github.com/joseph56-coder/weekend-game
 
 go 1.18
 
