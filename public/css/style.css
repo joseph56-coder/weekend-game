@@ -1,1 +1,11 @@
-style
+html, body {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    background: #ded6ae;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
