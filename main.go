@@ -8,10 +8,18 @@ import (
 	"runtime"
 
 	socketio "github.com/googollee/go-socket.io"
+	"github.com/googollee/go-socket.io/engineio"
+	"github.com/googollee/go-socket.io/engineio/transport"
+	"github.com/googollee/go-socket.io/engineio/transport/polling"
+	"github.com/googollee/go-socket.io/engineio/transport/websocket"
 	"github.com/joho/godotenv"
 	"github.com/joseph56-coder/weekend-game/api"
 	"github.com/joseph56-coder/weekend-game/api/handlers"
 )
+
+var allowOriginFunc = func(r *http.Request) bool {
+	return true
+}
 
 func main() {
 	_, f, _, ok := runtime.Caller(0)
@@ -33,7 +41,16 @@ func main() {
 	// pagesFs := http.FileServer(http.Dir(pages))
 	// http.Handle("/", pagesFs)
 
-	server := socketio.NewServer(nil)
+	server := socketio.NewServer(&engineio.Options{
+		Transports: []transport.Transport{
+			&polling.Transport{
+				CheckOrigin: allowOriginFunc,
+			},
+			&websocket.Transport{
+				CheckOrigin: allowOriginFunc,
+			},
+		},
+	})
 	server.OnConnect("/", func(c socketio.Conn) error {
 		log.Println("New Connection:", c.ID())
 		return nil
@@ -49,8 +66,7 @@ func main() {
 	go server.Serve()
 	defer server.Close()
 
-	http.Handle("/game", server)
-
+	http.Handle("/socket.io/", server)
 	err = http.ListenAndServe(os.Getenv("ADDR"), nil)
 	if err != http.ErrServerClosed {
 		panic(err)
